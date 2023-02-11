@@ -17,41 +17,97 @@ public class Lattice
 
     public IEnumerable<Triangle> FindTrianglesInView()
     {
-        Point[][] pointArray = GenerateLatticePoints().Select(e => e.ToArray()).ToArray();
+        IEnumerable<IEnumerable<Point>> pointEnum = GenerateLatticePoints();
 
-        bool onLongRow = pointArray[0].Length > pointArray[1].Length;
+        Point[] prevRow = pointEnum.First().ToArray();
+        Point[] thisRow = prevRow;
 
-        foreach (int rowIndex in Enumerable.Range(0, pointArray.Length))
+        foreach (IEnumerable<Point> rowEnum in pointEnum.Skip(1))
         {
-            Point[] thisRow = pointArray[rowIndex];
-            Point[]? nextRow = rowIndex + 1 >= pointArray.Length ? null : pointArray[rowIndex + 1];
-            Point[]? prevRow = rowIndex - 1 < 0 ? null : pointArray[rowIndex - 1];
+            prevRow = thisRow;
+            thisRow = rowEnum.ToArray();
+            bool onLongRow = thisRow.Length > prevRow.Length;
 
-            foreach (int colIndex in Enumerable.Range(0, thisRow.Length - 1))
+            //Do the downward point triangles:
+            if (onLongRow)
             {
-                int adjIndex = onLongRow ? colIndex : colIndex + 1;
-                int nextIndex = colIndex + 1;
-
-                Point point1, point2, point3;
-                point1 = thisRow[colIndex];
-                point2 = thisRow[nextIndex];
-                if (nextRow != null)
+                foreach (int colIndex in Enumerable.Range(1, thisRow.Length - 2)) //End points don't have a triangle above them
                 {
-                    point3 = nextRow[adjIndex];
-                    Triangle ret = new(point1, point2, point3);
-                    if (ret.OverlapsRectangle(Width, Height)) //I'm not convinced this Overlap check is necessary, but it's written so...
+                    int leftIndex = colIndex - 1;
+                    int rightIndex = colIndex;
+
+                    Point point1, point2, point3;
+                    point1 = thisRow[colIndex];
+                    point2 = prevRow[leftIndex];
+                    point3 = prevRow[rightIndex];
+
+                    Triangle? ret = GenerateAndCheckTriangle(point1, point2, point3);
+                    if (ret != null)
                         yield return ret;
                 }
-                if (prevRow != null)
+            }
+            else
+            {
+                foreach (int colIndex in Enumerable.Range(0, thisRow.Length))
                 {
-                    point3 = prevRow[adjIndex];
-                    Triangle ret = new(point1, point2, point3);
-                    if (ret.OverlapsRectangle(Width, Height)) //I'm not convinced this Overlap check is necessary, but it's written so...
+                    int leftIndex = colIndex;
+                    int rightIndex = colIndex + 1;
+
+                    Point point1, point2, point3;
+                    point1 = thisRow[colIndex];
+                    point2 = prevRow[leftIndex];
+                    point3 = prevRow[rightIndex];
+
+                    Triangle? ret = GenerateAndCheckTriangle(point1, point2, point3);
+                    if (ret != null)
                         yield return ret;
                 }
             }
 
-            onLongRow = !onLongRow;
+            //Do the upward point triangles:
+            if (onLongRow)
+            {
+                foreach (int colIndex in Enumerable.Range(0, thisRow.Length - 1))
+                {
+                    int nextIndex = colIndex + 1;
+                    int adjIndex = colIndex;
+
+                    Point point1, point2, point3;
+                    point1 = thisRow[colIndex];
+                    point2 = thisRow[nextIndex];
+                    point3 = prevRow[adjIndex];
+
+                    Triangle? ret = GenerateAndCheckTriangle(point1, point2, point3);
+                    if (ret != null)
+                        yield return ret;
+                }
+            }
+            else
+            {
+                foreach (int colIndex in Enumerable.Range(0, thisRow.Length - 1))
+                {
+                    int nextIndex = colIndex + 1;
+                    int adjIndex = colIndex + 1;
+
+                    Point point1, point2, point3;
+                    point1 = thisRow[colIndex];
+                    point2 = thisRow[nextIndex];
+                    point3 = prevRow[adjIndex];
+
+                    Triangle? ret = GenerateAndCheckTriangle(point1, point2, point3);
+                    if (ret != null)
+                        yield return ret;
+                }
+            }
+        }
+
+        Triangle? GenerateAndCheckTriangle(Point point1, Point point2, Point point3)
+        {
+            Triangle ret = new(point1, point2, point3);
+            if (ret.OverlapsRectangle(Width, Height)) //I'm not convinced this Overlap check is necessary, but it's written so...
+                return ret;
+            else
+                return null;
         }
     }
 
@@ -87,7 +143,7 @@ public class Lattice
         }
     }
 
-    private IEnumerable<Point> GenerateLatticeRow(double y, int start, int count, double xOffset)
+    private static IEnumerable<Point> GenerateLatticeRow(double y, int start, int count, double xOffset)
     {
         foreach (double x in Enumerable.Range(start, count))
             yield return new(x + xOffset, y * VertUnit);

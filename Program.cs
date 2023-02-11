@@ -12,10 +12,10 @@ _ = int.TryParse(rectWidthS, out int rectWidth);
 _ = int.TryParse(rectHeightS, out int rectHeight);
 
 Lattice Lattice = new(rectWidth, rectHeight);
-var triangles = Lattice.FindTrianglesInView().ToList();
-Console.WriteLine($"Number of Trianlges overlapping square: {triangles.Count}");
+IEnumerable<Triangle> triangles = Lattice.FindTrianglesInView();
+Console.WriteLine($"Number of Trianlges overlapping square: {triangles.Count()}");
 Console.WriteLine();
-Point ranPoint = triangles[3].Point3;
+Point ranPoint = triangles.Skip(3).First().Point3;
 ranPoint.ToPolar(2, out double a, out double theta, out double phi);
 Console.WriteLine($"Random point: X = {ranPoint.X}, Y = {ranPoint.Y}");
 Console.WriteLine($"Random point converted to Polar: Camera Height = 2, a = {a}, Theta = {theta}, Phi = {phi}");
