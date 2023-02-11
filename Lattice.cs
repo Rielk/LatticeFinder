@@ -4,20 +4,13 @@ public static class Lattice
     private static double VertUnit { get; } = Math.Sqrt(3) / 2;
 
     public static List<Triangle> FindTrianglesInView(int width, int height) => FindTrianglesInView((double)width, (double)height);
-    public static List<Triangle> FindTrianglesInView(double width, double height)
+    public static List<Triangle> FindTrianglesInView(double width, double height) //Width and height of rectangle centered on a lattice node
     {
         if (height == 0) throw new NotImplementedException();
 
         Point[][] pointArray = GenerateLatticePoints(width, height).Select(e => e.ToArray()).ToArray();
 
-        int longLength = pointArray[0].Length;
-        int shortLength = pointArray[1].Length;
-        bool onLongRow = true;
-        if (longLength < shortLength)
-        {
-            (longLength, shortLength) = (shortLength, longLength);
-            onLongRow = false;
-        }
+        bool onLongRow = pointArray[0].Length > pointArray[1].Length;
 
         List<Triangle> ret = new();
 
@@ -50,7 +43,7 @@ public static class Lattice
             onLongRow = !onLongRow;
         }
 
-        return ret;
+        return ret.Where(t => t.OverlapsRectangle(width, height)).ToList(); //I'm not convinced this Overlap check is necessary, but it's written so...
     }
 
     private static IEnumerable<IEnumerable<Point>> GenerateLatticePoints(double width, double height)
