@@ -11,8 +11,8 @@ Console.WriteLine();
 _ = int.TryParse(rectWidthS, out int rectWidth);
 _ = int.TryParse(rectHeightS, out int rectHeight);
 
-
-List<Triangle> triangles = Lattice.FindTrianglesInView(rectWidth, rectHeight);
+Lattice Lattice = new(rectWidth, rectHeight);
+var triangles = Lattice.FindTrianglesInView().ToList();
 Console.WriteLine($"Number of Trianlges overlapping square: {triangles.Count}");
 Console.WriteLine();
 Point ranPoint = triangles[3].Point3;

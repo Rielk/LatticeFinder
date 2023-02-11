@@ -1,18 +1,25 @@
 ﻿namespace LatticeFinder;
-public static class Lattice
+public class Lattice
 {
     private static double VertUnit { get; } = Math.Sqrt(3) / 2;
 
-    public static List<Triangle> FindTrianglesInView(int width, int height) => FindTrianglesInView((double)width, (double)height);
-    public static List<Triangle> FindTrianglesInView(double width, double height) //Width and height of rectangle centered on a lattice node
-    {
-        if (height == 0) throw new NotImplementedException();
+    public double Width { get; init; }
+    public double Height { get; init; }
 
-        Point[][] pointArray = GenerateLatticePoints(width, height).Select(e => e.ToArray()).ToArray();
+    public Lattice(int width, int height) : this((double)width, (double)height) { }
+    public Lattice(double width, double height)  //Width and height of rectangle centered on a lattice node
+    {
+        if (height == 0) throw new NotImplementedException("Getting triangles assumes there are 2 rows so height zero will break this");
+
+        Width = width;
+        Height = height;
+    }
+
+    public IEnumerable<Triangle> FindTrianglesInView()
+    {
+        Point[][] pointArray = GenerateLatticePoints().Select(e => e.ToArray()).ToArray();
 
         bool onLongRow = pointArray[0].Length > pointArray[1].Length;
-
-        List<Triangle> ret = new();
 
         foreach (int rowIndex in Enumerable.Range(0, pointArray.Length))
         {
@@ -31,24 +38,26 @@ public static class Lattice
                 if (nextRow != null)
                 {
                     point3 = nextRow[adjIndex];
-                    ret.Add(new(point1, point2, point3));
+                    Triangle ret = new(point1, point2, point3);
+                    if (ret.OverlapsRectangle(Width, Height)) //I'm not convinced this Overlap check is necessary, but it's written so...
+                        yield return ret;
                 }
                 if (prevRow != null)
                 {
                     point3 = prevRow[adjIndex];
-                    ret.Add(new(point1, point2, point3));
+                    Triangle ret = new(point1, point2, point3);
+                    if (ret.OverlapsRectangle(Width, Height)) //I'm not convinced this Overlap check is necessary, but it's written so...
+                        yield return ret;
                 }
             }
 
             onLongRow = !onLongRow;
         }
-
-        return ret.Where(t => t.OverlapsRectangle(width, height)).ToList(); //I'm not convinced this Overlap check is necessary, but it's written so...
     }
 
-    private static IEnumerable<IEnumerable<Point>> GenerateLatticePoints(double width, double height)
+    private IEnumerable<IEnumerable<Point>> GenerateLatticePoints()
     {
-        double unitWidth = width / 2;
+        double unitWidth = Width / 2;
         bool extendOddRows;
         if (Math.Floor(unitWidth) == unitWidth)
             extendOddRows = true;
@@ -57,7 +66,7 @@ public static class Lattice
         else
             extendOddRows = Math.Ceiling(unitWidth) == Math.Round(unitWidth);
         int countWide = (int)Math.Ceiling(unitWidth); //How long the even rows are
-        int countHigh = (int)Math.Ceiling((height / 2) / VertUnit);
+        int countHigh = (int)Math.Ceiling((Height / 2) / VertUnit);
 
         foreach (double y in Enumerable.Range(-countHigh, 2 * countHigh + 1))
         {
@@ -78,7 +87,7 @@ public static class Lattice
         }
     }
 
-    private static IEnumerable<Point> GenerateLatticeRow(double y, int start, int count, double xOffset)
+    private IEnumerable<Point> GenerateLatticeRow(double y, int start, int count, double xOffset)
     {
         foreach (double x in Enumerable.Range(start, count))
             yield return new(x + xOffset, y * VertUnit);
