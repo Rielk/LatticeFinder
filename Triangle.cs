@@ -12,21 +12,15 @@ public record Triangle(Point Point1, Point Point2, Point Point3)
         }
     }
 
-    public IEnumerable<Point> AllPoints
-    {
-        get
-        {
-            yield return Point1;
-            yield return Point2;
-            yield return Point3;
-        }
-    }
-
     internal bool OverlapsRectangle(double width, double height) //Width and height of rectangle centered at (0,0)
     {
-        if (AllPoints.Any(p => p.InRectangle(width, height)))
+        if (Point1.InRectangle(width, height))
             return true;
-        else if (RectangleCorners().Any(prop => prop.InTriangle(this)))
+        if (Point2.InRectangle(width, height))
+            return true;
+        if (Point3.InRectangle(width, height))
+            return true;
+        if (RectangleCorners().Any(prop => prop.InTriangle(this)))
             return true;
         return false;
 

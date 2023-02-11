@@ -29,7 +29,7 @@ public static class Lattice
                     point2 = prevRow[leftIndex];
                     point3 = prevRow[rightIndex];
 
-                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle? ret))
+                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle ret))
                         yield return ret;
                 }
             }
@@ -45,7 +45,7 @@ public static class Lattice
                     point2 = prevRow[leftIndex];
                     point3 = prevRow[rightIndex];
 
-                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle? ret))
+                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle ret))
                         yield return ret;
                 }
             }
@@ -63,7 +63,7 @@ public static class Lattice
                     point2 = thisRow[nextIndex];
                     point3 = prevRow[adjIndex];
 
-                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle? ret))
+                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle ret))
                         yield return ret;
                 }
             }
@@ -79,7 +79,7 @@ public static class Lattice
                     point2 = thisRow[nextIndex];
                     point3 = prevRow[adjIndex];
 
-                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle? ret))
+                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle ret))
                         yield return ret;
                 }
             }
@@ -88,7 +88,7 @@ public static class Lattice
         bool GenerateAndCheckTriangle(Point point1, Point point2, Point point3, out Triangle triangle)
         {
             triangle = new(point1, point2, point3);
-            if (triangle.OverlapsRectangle(width, height)) //I'm not convinced this Overlap check is necessary, but it's written so...
+            if (triangle.OverlapsRectangle(width, height)) //I'm not convinced this Overlap check is necessary, it actually is one of the big slow points of this, but it's written so...
                 return true;
             else
                 return false;
