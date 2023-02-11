@@ -1,23 +1,11 @@
 ﻿namespace LatticeFinder;
-public class Lattice
+public static class Lattice
 {
     private static double VertUnit { get; } = Math.Sqrt(3) / 2;
 
-    public double Width { get; init; }
-    public double Height { get; init; }
-
-    public Lattice(int width, int height) : this((double)width, (double)height) { }
-    public Lattice(double width, double height)  //Width and height of rectangle centered on a lattice node
+    public static IEnumerable<Triangle> FindTrianglesInView(double width, double height)
     {
-        if (height == 0) throw new NotImplementedException("Getting triangles assumes there are 2 rows so height zero will break this");
-
-        Width = width;
-        Height = height;
-    }
-
-    public IEnumerable<Triangle> FindTrianglesInView()
-    {
-        IEnumerable<IEnumerable<Point>> pointEnum = GenerateLatticePoints();
+        IEnumerable<IEnumerable<Point>> pointEnum = GenerateLatticePoints(width, height);
 
         Point[] prevRow = pointEnum.First().ToArray();
         Point[] thisRow = prevRow;
@@ -104,16 +92,16 @@ public class Lattice
         Triangle? GenerateAndCheckTriangle(Point point1, Point point2, Point point3)
         {
             Triangle ret = new(point1, point2, point3);
-            if (ret.OverlapsRectangle(Width, Height)) //I'm not convinced this Overlap check is necessary, but it's written so...
+            if (ret.OverlapsRectangle(width, height)) //I'm not convinced this Overlap check is necessary, but it's written so...
                 return ret;
             else
                 return null;
         }
     }
 
-    private IEnumerable<IEnumerable<Point>> GenerateLatticePoints()
+    private static IEnumerable<IEnumerable<Point>> GenerateLatticePoints(double width, double height)
     {
-        double unitWidth = Width / 2;
+        double unitWidth = width / 2;
         bool extendOddRows;
         if (Math.Floor(unitWidth) == unitWidth)
             extendOddRows = true;
@@ -122,7 +110,7 @@ public class Lattice
         else
             extendOddRows = Math.Ceiling(unitWidth) == Math.Round(unitWidth);
         int countWide = (int)Math.Ceiling(unitWidth); //How long the even rows are
-        int countHigh = (int)Math.Ceiling((Height / 2) / VertUnit);
+        int countHigh = (int)Math.Ceiling((height / 2) / VertUnit);
 
         foreach (double y in Enumerable.Range(-countHigh, 2 * countHigh + 1))
         {
