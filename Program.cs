@@ -12,7 +12,7 @@ _ = int.TryParse(rectWidthS, out int rectWidth);
 _ = int.TryParse(rectHeightS, out int rectHeight);
 
 IEnumerable<Triangle> triangles = Lattice.FindTrianglesInView(rectWidth, rectHeight);
-Console.WriteLine($"Number of Trianlges overlapping square: {triangles.Count()}");
+Console.WriteLine($"Number of Triangles overlapping square: {triangles.Count()}");
 Console.WriteLine();
 Point ranPoint = triangles.Skip(3).First().Point3;
 ranPoint.ToPolar(2, out double a, out double theta, out double phi);

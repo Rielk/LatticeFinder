@@ -29,8 +29,7 @@ public static class Lattice
                     point2 = prevRow[leftIndex];
                     point3 = prevRow[rightIndex];
 
-                    Triangle? ret = GenerateAndCheckTriangle(point1, point2, point3);
-                    if (ret != null)
+                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle? ret))
                         yield return ret;
                 }
             }
@@ -46,8 +45,7 @@ public static class Lattice
                     point2 = prevRow[leftIndex];
                     point3 = prevRow[rightIndex];
 
-                    Triangle? ret = GenerateAndCheckTriangle(point1, point2, point3);
-                    if (ret != null)
+                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle? ret))
                         yield return ret;
                 }
             }
@@ -65,8 +63,7 @@ public static class Lattice
                     point2 = thisRow[nextIndex];
                     point3 = prevRow[adjIndex];
 
-                    Triangle? ret = GenerateAndCheckTriangle(point1, point2, point3);
-                    if (ret != null)
+                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle? ret))
                         yield return ret;
                 }
             }
@@ -82,20 +79,19 @@ public static class Lattice
                     point2 = thisRow[nextIndex];
                     point3 = prevRow[adjIndex];
 
-                    Triangle? ret = GenerateAndCheckTriangle(point1, point2, point3);
-                    if (ret != null)
+                    if (GenerateAndCheckTriangle(point1, point2, point3, out Triangle? ret))
                         yield return ret;
                 }
             }
         }
 
-        Triangle? GenerateAndCheckTriangle(Point point1, Point point2, Point point3)
+        bool GenerateAndCheckTriangle(Point point1, Point point2, Point point3, out Triangle triangle)
         {
-            Triangle ret = new(point1, point2, point3);
-            if (ret.OverlapsRectangle(width, height)) //I'm not convinced this Overlap check is necessary, but it's written so...
-                return ret;
+            triangle = new(point1, point2, point3);
+            if (triangle.OverlapsRectangle(width, height)) //I'm not convinced this Overlap check is necessary, but it's written so...
+                return true;
             else
-                return null;
+                return false;
         }
     }
 
